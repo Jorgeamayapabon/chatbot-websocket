@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block content %}
+    
+    <div class="room">
+
+        <div id="BoxMessage"></div>
+        <div class="input-group mt-3">
+            <input type="text" class="form-control" id="InputMessage" placeholder="Write a messages...">
+            <button class="input-group-text btn btn-primary" id="ButtonMessage">Send</button>
+        </div>
+        <div>
+            <h3>Usuarios en la sala:</h3>
+            <ul id="user-list">
+                <!-- Aquí se pintarán los usuarios dinámicamente -->
+            </ul>
+        </div>
+    </div>
+
+    <script>
+
+        var user = '{{ request.user }}'
+
+        var url = 'ws://'+window.location.host+'/ws/chat/room/{{ name }}/{{ room.id }}'
+
+        var chatSocket = new WebSocket(url)
+
+        //***message
+
+        document.querySelector('#ButtonMessage').addEventListener("click",sendMessage)
+        document.querySelector('#InputMessage').addEventListener("keypress", function(e){
+            if(e.keyCode == 13){
+                sendMessage()
+            }
+        })
+         
+        function sendMessage(){
+            message = document.querySelector("#InputMessage")
+
+            if(message.value.trim() !== ''){
+                chatSocket.send(JSON.stringify({ 'message': message.value.trim() }))
+            }
+
+            message.value = ''
+        }
+
+        //***message
+
+        chatSocket.onopen = function(e){
+            console.log('Channels WS is Open!')
+        }
+
+        chatSocket.onmessage = function(data){
+
+            var data = JSON.parse(data.data)
+            console.log(data)
+            
+            if (data.type === 'user_list') {
+                const userList = document.getElementById('user-list');
+                userList.innerHTML = ''; // Limpia la lista actual
+    
+                // Asegura de que la lista de usuarios esté definida y no vacía
+                if (Array.isArray(data.users) && data.users.length > 0) {
+                    data.users.forEach(user => {
+                        const li = document.createElement('li');
+                        li.textContent = user;
+                        userList.appendChild(li);
+                    });
+                } else {
+                    userList.innerHTML = '<li>No users connected</li>';
+                }
+
+                return;
+            }
+
+            var msj = data.message
+            var username = data.username
+            var datetime = data.datetime
+
+            boxMessage = document.querySelector("#BoxMessage")
+
+            var customClass = 'alert-success mr-5'
+            if(user != username){
+                var customClass = 'alert-warning ml-5'
+            }
+
+            boxMessage.innerHTML += `
+            <div class="alert ${customClass} mt-3">
+                <small class='fst-italic'>${username}: </small>
+                ${msj}
+                <small class='float-end'>${datetime}</small>
+            </div>
+            `
+        }
+
+        chatSocket.onclose = function(e){
+            console.log('Channels WS is Close!')
+        }
+
+
+
+    </script>
+
+{% endblock  %}

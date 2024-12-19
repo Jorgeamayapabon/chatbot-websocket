@@ -8,9 +8,18 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("DJNGO_SECRET_KEY")
 DEBUG = True
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
+
+CSRF_TRUSTED_ORIGINS = ['http://localhost', 'http://127.0.0.1']
+
+CSRF_COOKIE_NAME = 'csrftoken'
+
+# Asegúrate de que CSRF_COOKIE_SECURE es False en desarrollo (solo para pruebas locales)
+CSRF_COOKIE_SECURE = False
+
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -18,9 +27,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'channels',
     'apps.room',
-    'apps.user',
 ]
 
 MIDDLEWARE = [
@@ -111,13 +118,13 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-ASGI_APPLICATION = "myproject.asgi.application"
+ASGI_APPLICATION = "core.routing.application"
 
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],  # Asegúrate de tener Redis instalado y en ejecución
+            "hosts": [("127.0.0.1", 6379)],
         },
     },
 }

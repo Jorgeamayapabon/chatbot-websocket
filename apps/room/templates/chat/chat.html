@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    <div class="register">
+        <div id="BoxName"></div>
+        <div class="input-group mt-3">
+            <input type="text" class="form-control" id="InputName" placeholder="Write your name...">
+            <select id="room-select">
+                <!-- Opciones cargadas dinámicamente -->
+            </select>
+            <button class="input-group-text btn btn-primary" id="ButtonNext">Next</button>
+        </div>
+    </div>
+
+    <script>
+        const usernameInput = document.getElementById('InputName');
+        const roomSelect = document.getElementById('room-select');
+        fetch('/api/chatroom/')
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(room => {
+                    const option = document.createElement('option');
+                    option.value = room.id;
+                    option.textContent = room.name;
+                    roomSelect.appendChild(option);
+                });
+            });
+        
+        document.querySelector('#ButtonNext').addEventListener("click", nextPage)
+        
+        function nextPage(){
+            const username = usernameInput.value.trim();
+            const selectedRoom = roomSelect.value;
+
+            if (username && selectedRoom) {
+                const nextUrl = `/chat/${selectedRoom}?name=${encodeURIComponent(username)}`;
+                window.location.href = nextUrl;
+            } else {
+                // Mensaje de error si faltan datos
+                alert('Your name and room are required');
+            }
+
+        }
+    </script>
+
+        
+{% endblock %}
