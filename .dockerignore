@@ -1,0 +1,7 @@
+.env
+migrations/
+0001_initial.py
+0002_initial.py
+__pycache__/
+*.pyc
+*.pyo

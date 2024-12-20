@@ -5,6 +5,8 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 import redis
 
+from core.settings import REDIS_HOST
+
 REDIS_PREFIX = "chat_room_users"
 
 
@@ -84,19 +86,19 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def add_user_to_room(self, username, room_id):
-        r = redis.Redis(host='localhost', port=6379, db=0)
+        r = redis.Redis(host=REDIS_HOST, port=6379, db=0)
         redis_key = f"{REDIS_PREFIX}:{room_id}"
         r.sadd(redis_key, username)
 
     @database_sync_to_async
     def remove_user_from_room(self, username, room_id):
-        r = redis.Redis(host='localhost', port=6379, db=0)
+        r = redis.Redis(host=REDIS_HOST, port=6379, db=0)
         redis_key = f"{REDIS_PREFIX}:{room_id}"
         r.srem(redis_key, username)
 
     @database_sync_to_async
     def get_users_in_room(self, room_id):
-        r = redis.Redis(host='localhost', port=6379, db=0)
+        r = redis.Redis(host=REDIS_HOST, port=6379, db=0)
         redis_key = f"{REDIS_PREFIX}:{room_id}"
         users = r.smembers(redis_key)
         return [user.decode("utf-8") for user in users]

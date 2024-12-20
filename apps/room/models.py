@@ -10,7 +10,7 @@ class ChatRoomModel(models.Model):
     )
 
     def __str__(self):
-        return self.room_name
+        return self.name
 
     class Meta:
         verbose_name = _("Chat Room")
